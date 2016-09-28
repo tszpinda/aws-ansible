@@ -5,19 +5,20 @@
   tasks:
     - set_fact:
         ami_id: ami-d41d58a7
+        amazon_tag: ansible
     - name: Provision a set of instances
       ec2:
          key_name: tszpinda-ir
          region: eu-west-1
          group: ssh-on-22-all-source
          instance_type: t2.micro
-         image: "{{ ami_id }}"
+         image: "{{ami_id}}"
          wait: true
-         exact_count: 3
+         exact_count: 2
          count_tag:
-            Name: ansible
+            Name: "{{amazon_tag}}"
          instance_tags:
-            Name: ansible
+            Name: "{{amazon_tag}}"
       register: ec2
     - name: Add new instance to host group
       add_host:
