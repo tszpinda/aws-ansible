@@ -14,7 +14,7 @@
          instance_type: t2.micro
          image: "{{ami_id}}"
          wait: true
-         exact_count: 2
+         exact_count: 1
          count_tag:
             Name: "{{amazon_tag}}"
          instance_tags:
@@ -23,16 +23,20 @@
     - name: Add new instance to host group
       add_host:
         hostname: "{{ item.public_ip }}"
-        groupname: launched
+        groupname: tag_Name_ansible
         ansible_ssh_user: ec2-user
       with_items: ec2.instances
+      when: item.state == 'running' or item.state == 'started'
     - name: Wait for SSH to come up
       wait_for: host={{ item.public_dns_name }} port=22 delay=10 timeout=320 state=started
       with_items: "{{ec2.instances}}"
+      when: item.state == 'running' or item.state == 'started'
+    - name: refresh inventory
+      meta: refresh_inventory
 
 
 
-- hosts: launched
+- hosts: tag_Name_ansible
   gather_facts: True
   tasks:
     - name: ping pong
