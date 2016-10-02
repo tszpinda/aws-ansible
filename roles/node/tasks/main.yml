@@ -1,0 +1,17 @@
+---
+- set_fact:
+    cloudera_manager_ip: "{{ hostvars[groups['tag_Name_cm'][0]]['ansible_eth0']['ipv4']['address'] }}"
+    node_ip: "{{ ansible_eth0['ipv4']['address'] }}"
+  tags: always
+
+- name: install jdk
+  yum: name=oracle-j2sdk1.7 state=installed
+
+- name: install agent service
+  yum: name=cloudera-manager-daemons,cloudera-manager-agent,postgresql
+
+- name: cloudera agent config
+  template: src=config.ini.j2 dest=/etc/cloudera-scm-agent/config.ini force=yes backup=yes
+
+- name: start agent service
+  service: name=cloudera-scm-agent state=started enabled=yes

@@ -1,0 +1,10 @@
+---
+- name: wait for cloudera manager api to be up
+  uri:
+    url: "{{cm_api}}/hosts"
+    user: admin
+    password: admin
+  register: hosts_results
+  until: hosts_results.status == 200
+
+- debug: var=hosts_results

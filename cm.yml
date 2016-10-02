@@ -1,0 +1,21 @@
+- hosts: tag_Name_cm,tag_Name_node
+  gather_facts: True
+  become: yes
+  roles:
+    - base
+    - fqdn
+    - epel_repo
+    - cm_repo
+
+- hosts: tag_Name_cm
+  gather_facts: True
+  become: yes
+  roles:
+    - cm
+
+- hosts: tag_Name_node
+  gather_facts: True
+  become: yes
+  roles:
+    - node
+

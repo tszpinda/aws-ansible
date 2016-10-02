@@ -1,0 +1,49 @@
+{
+  "displayName": "ZooKeeper",
+  "name": "zookeeper",
+  "type": "ZOOKEEPER"
+  "roleConfigGroups": [
+    {
+      "base": true,
+      "config": {
+        "items": [
+          {
+            "name": "maxSessionTimeout",
+            "value": "60000"
+          },
+          {
+            "name": "zookeeper_server_java_heapsize",
+            "value": "52428800"
+          }
+        ]
+      },
+      "displayName": "Server Default Group",
+      "name": "zookeeper-SERVER-BASE",
+      "roleType": "SERVER",
+      "serviceRef": {
+        "clusterName": "{{cm_cluster_name}}",
+        "serviceName": "zookeeper"
+      }
+    }
+  ],
+  "roles": [
+    {
+      "config": {
+        "items": [
+          {
+            "name": "serverId",
+            "value": "1"
+          }
+        ]
+      },
+      "hostRef": {
+        "hostId": "{{cloudera_node1_hostname}}"
+      },
+      "name": "zookeeper-SERVER",
+      "roleConfigGroupRef": {
+        "roleConfigGroupName": "zookeeper-SERVER-BASE"
+      },
+      "type": "SERVER"
+    }
+  ]
+}

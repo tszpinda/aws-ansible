@@ -1,0 +1,6 @@
+{% for groupName in group_names %}
+{% for host in groups[groupName] %}
+{{ hostvars[host]['ansible_eth0']['ipv4']['address'] }} {{ hostvars[host].ansible_hostname }} {{hostvars[host].ansible_hostname}}.{{cloudera_domain}}
+{% endfor %}
+{% endfor %}
+127.0.0.1 localhost

@@ -1,0 +1,4 @@
+---
+#- name: print all variables
+- action: template src=../templates/dumpall.j2 dest=/tmp/ansible.all
+#- debug: msg="{{ lookup('template', '../templates/dumpall.j2') }}"

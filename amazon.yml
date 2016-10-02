@@ -3,41 +3,62 @@
   gather_facts: False
 
   tasks:
-    - set_fact:
-        ami_id: ami-d41d58a7
-        amazon_tag: ansible
-    - name: Provision a set of instances
-      ec2:
-         key_name: tszpinda-ir
-         region: eu-west-1
-         group: ssh-on-22-all-source
-         instance_type: t2.micro
-         image: "{{ami_id}}"
-         wait: true
-         exact_count: 1
-         count_tag:
-            Name: "{{amazon_tag}}"
-         instance_tags:
-            Name: "{{amazon_tag}}"
-      register: ec2
-    - name: Add new instance to host group
-      add_host:
-        hostname: "{{ item.public_ip }}"
-        groupname: tag_Name_ansible
-        ansible_ssh_user: ec2-user
-      with_items: ec2.instances
-      when: item.state == 'running' or item.state == 'started'
-    - name: Wait for SSH to come up
-      wait_for: host={{ item.public_dns_name }} port=22 delay=10 timeout=320 state=started
-      with_items: "{{ec2.instances}}"
-      when: item.state == 'running' or item.state == 'started'
-    - name: refresh inventory
-      meta: refresh_inventory
+    - name: db security group
+      ec2_group:
+        name: db-port
+        description: db port
+        region: eu-west-1
+        rules:
+          - proto: tcp
+            from_port: "{{cloudera_db_port}}"
+            to_port: "{{cloudera_db_port}}"
+            cidr_ip: 0.0.0.0/0
+    - name: ssh security group
+      ec2_group:
+        name: ssh-port
+        description: ssh port
+        region: eu-west-1
+        rules:
+          - proto: tcp
+            from_port: 22
+            to_port: 22
+            cidr_ip: 0.0.0.0/0
+    - name: internet access
+      ec2_group:
+        name: internet-access
+        description: Internet access
+        region: eu-west-1
+        rules_egress:
+          - proto: tcp
+            from_port: 0
+            to_port: 65535
+            cidr_ip: 0.0.0.0/0
+    - name: cloudera manager web
+      ec2_group:
+        name: cm-web
+        description: cm-web
+        region: eu-west-1
+        rules:
+          - proto: tcp
+            from_port: "7180"
+            to_port: "7180"
+            cidr_ip: 0.0.0.0/0
+    - name: cloudera agent
+      ec2_group:
+        name: cm-agent
+        description: cm-agent
+        region: eu-west-1
+        rules:
+          - proto: tcp
+            from_port: "7100"
+            to_port: "7200"
+            cidr_ip: 0.0.0.0/0
 
+    - include: create-ec2.yml amazon_tag=cm count=1 security_groups=['ssh-port','db-port','internet-access','cm-web','cm-agent']
+    - include: create-ec2.yml amazon_tag=node count=1 security_groups=['ssh-port','db-port','internet-access','cm-agent']
 
-
-- hosts: tag_Name_ansible
-  gather_facts: True
+- hosts: tag_Name_cm,tag_Name_node
+  gather_facts: true
   tasks:
     - name: ping pong
       ping:

@@ -1,0 +1,42 @@
+---
+- name: install embedded db
+  yum: name=cloudera-manager-server-db-2
+
+- name: embedded db service
+  service: name=cloudera-scm-server-db state=started enabled=yes
+
+- name: read dynamically created db password
+  shell: cat /var/lib/cloudera-scm-server-db/data/generated_password.txt|head -1
+  register: extractPassword
+  changed_when: false
+  tags: always
+
+- set_fact:
+    scmDbUser: cloudera-scm
+    scmDbPassword: "{{extractPassword.stdout}}"
+    tags: always
+
+#do we need gcc ?
+- name: install ansible module postgresql_user dependecy (psycopg2)
+  yum: name=gcc,python-pip,python-devel,postgresql-devel
+
+- name: install psycoph2
+  pip: name=psycopg2
+
+- name: install ansible module postgresql_user dependecy (psycopg2)
+  yum: name=postgresql-libs
+
+- name: allow users to connect from external hosts
+  lineinfile: dest=/var/lib/cloudera-scm-server-db/data/pg_hba.conf regexp="^host.*{{item.username}}.*" line="host {{item.username}} all 0.0.0.0 0.0.0.0 md5"
+  with_items:
+    - { username: "{{hive_metastore_database_user}}" }
+    - { username: "{{hue_database_user}}" }
+
+- name: create databases with users
+  include: create-db-with-user.yml dbname={{item.dbname}} dbuser={{item.dbuser}} dbpassword={{item.dbpassword}}
+  with_items:
+    - { dbname: "{{hive_metastore_database_name}}", dbuser: "{{hive_metastore_database_user}}", dbpassword: "{{hive_metastore_database_password}}" }
+    - { dbname: "{{hue_database_name}}", dbuser: "{{hue_database_user}}", dbpassword: "{{hue_database_password}}" }
+
+- name: start db service
+  service: name=cloudera-scm-server-db state=started enabled=yes

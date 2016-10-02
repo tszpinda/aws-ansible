@@ -1,0 +1,34 @@
+---
+- set_fact:
+    ami_id: ami-7abd0209
+
+- name: Provision a set of instances
+  ec2:
+     key_name: tszpinda-ir
+     region: eu-west-1
+     group: "{{security_groups}}"
+     instance_type: t2.medium
+     image: "{{ami_id}}"
+     wait: true
+     exact_count: "{{count}}"
+     count_tag:
+        Name: "{{amazon_tag}}"
+     instance_tags:
+        Name: "{{amazon_tag}}"
+  register: ec2
+
+- name: Add new instance to host group
+  add_host:
+    hostname: "{{ item.public_ip }}"
+    groupname: tag_Name_ansible
+    ansible_ssh_user: centos
+  with_items: ec2.instances
+  when: "item.state is defined and item['state'] == 'running' or item['state'] == 'started'"
+
+- name: Wait for SSH to come up
+  wait_for: host={{ item.public_dns_name }} port=22 delay=10 timeout=320 state=started
+  with_items: "{{ec2.instances}}"
+  when: item.state == 'running' or item.state == 'started'
+
+- name: refresh inventory
+  meta: refresh_inventory

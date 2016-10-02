@@ -1,0 +1,55 @@
+---
+- set_fact:
+    cm_api: "http://localhost:7180/api/v13"
+    cm_cluster_name: "Cluster0001"
+    cm_cluster_version: "5.8.2"
+    cm_parcel_version: "5.8.2-1.cdh5.8.2.p0.3"
+  tags: always
+
+- name: install jdk
+  yum: name=oracle-j2sdk1.7 state=installed 
+
+- name: install cm
+  yum: name=cloudera-manager-daemons,cloudera-manager-server
+
+- include: cm-db.yml
+  tags: db
+
+- name: cloudera manager service
+  service: name=cloudera-scm-server state=started enabled=yes
+
+- name: wait for cloudera manager api to be up
+  uri:
+    url: "{{cm_api}}/cm/deployment"
+    user: admin
+    password: admin
+    force_basic_auth: yes
+  register: cm_config_result
+  until: cm_config_result.status == 200
+  retries: 300
+  delay: 10
+
+- include: create-and-add-hosts.yml
+  tags: add-hosts
+
+- name: install cm-api
+  pip: name=cm-api
+  tags: cm_api
+
+- name: create cluster
+  uri:
+    url:  "{{cm_api}}/clusters"
+    method: POST
+    body: "{{ lookup('template','cluster.j2') }}"
+    user: admin
+    password: admin
+    return_content: yes
+    force_basic_auth: yes
+    status_code: 200
+    body_format: json
+  tags: cm_cluster
+
+- name: parcel setup
+  cmparcel: cmhost=localhost
+  tags: cm_parcel
+
