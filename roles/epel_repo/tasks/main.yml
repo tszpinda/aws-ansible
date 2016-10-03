@@ -1,3 +1,4 @@
 ---
 - name: Add epel repo
   yum: name=epel-release
+  tags: init

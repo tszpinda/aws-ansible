@@ -6,12 +6,16 @@
 
 - name: install jdk
   yum: name=oracle-j2sdk1.7 state=installed
+  tags: init
 
 - name: install agent service
   yum: name=cloudera-manager-daemons,cloudera-manager-agent,postgresql
+  tags: init
 
 - name: cloudera agent config
   template: src=config.ini.j2 dest=/etc/cloudera-scm-agent/config.ini force=yes backup=yes
+  tags: init
 
 - name: start agent service
   service: name=cloudera-scm-agent state=started enabled=yes
+  tags: init

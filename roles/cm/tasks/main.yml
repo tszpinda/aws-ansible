@@ -7,16 +7,19 @@
   tags: always
 
 - name: install jdk
-  yum: name=oracle-j2sdk1.7 state=installed 
+  yum: name=oracle-j2sdk1.7 state=installed
+  tags: init
 
 - name: install cm
   yum: name=cloudera-manager-daemons,cloudera-manager-server
+  tags: init
 
 - include: cm-db.yml
-  tags: db
+  tags: init,db
 
 - name: cloudera manager service
   service: name=cloudera-scm-server state=started enabled=yes
+  tags: init
 
 - name: wait for cloudera manager api to be up
   uri:
@@ -28,13 +31,27 @@
   until: cm_config_result.status == 200
   retries: 300
   delay: 10
+  tags: init
+
+- name: config cm
+  uri:
+    url:  "{{cm_api}}/cm/config"
+    method: PUT
+    body: "{{ lookup('template','cm-config.j2') }}"
+    user: admin
+    password: admin
+    status_code: 200
+    body_format: json
+  tags: init,cm_conifg
 
 - include: create-and-add-hosts.yml
   tags: add-hosts
 
 - name: install cm-api
   pip: name=cm-api
-  tags: cm_api
+  tags: init,cm_api
+
+
 
 - name: create cluster
   uri:
@@ -47,9 +64,13 @@
     force_basic_auth: yes
     status_code: 200
     body_format: json
-  tags: cm_cluster
+  tags: init,cm_cluster
 
 - name: parcel setup
-  cmparcel: cmhost=localhost
+  cmparcel:
+    host: localhost
+    clusterName: "{{cm_cluster_name}}"
+    clusterVersion: "{{cm_cluster_version}}"
+    parcelVersion: "{{cm_parcel_version}}"
   tags: cm_parcel
 

@@ -1,0 +1,1 @@
+$ANSIBLE_HOME/hacking/test-module -m ./cmparcel.py  -a "host=52.210.76.95 clusterName=Cluster0001 clusterVersion=5.8.2"

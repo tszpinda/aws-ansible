@@ -12,13 +12,40 @@ import time
 from cm_api.api_client import ApiResource
 from cm_api.api_client import ApiException
 
+
 args_file = sys.argv[1]
 args_data = file(args_file).read()
 
-cm_host = "52.19.73.131"
-cluster_name = "Cluster0001"
-cm_cluster_version = "5.8.2"
-cm_parcel_version = "5.8.2-1.cdh5.8.2.p0.3"
+print 'args_file: %s' %args_file
+print 'args_data: %s' %args_data
+
+arguments = shlex.split(args_data)
+print "%s" % arguments
+cm_host = ""
+cluster_name = ""
+cm_cluster_version = ""
+cm_parcel_version = ""
+
+
+for arg in arguments:
+    if "=" in arg:
+        (key, value) = arg.split("=")
+        if key == 'host':
+            cm_host = value
+        if key == 'clusterName':
+            cluster_name = value
+        if key == 'clusterVersion':
+            cm_cluster_version = value
+        if key == 'parcelVersion':
+            cm_parcel_version = value
+
+if cm_host == "" or cluster_name == "" or cm_cluster_version == "" or cm_parcel_version == "":
+    print json.dumps({
+        "failed" : True,
+        "msg"    : "All parameters are required: host, clusterName, clusterVersion and parcelVersion"
+    })
+    sys.exit(1)
+
 
 def waitUntilParcelFound():
   countDown = 1
@@ -38,6 +65,7 @@ def waitUntilParcelFound():
             "msg"    : "CDH parcel not found - version %s on cluster %s" % (cm_parcel_version, cluster_name),
             "extras" : err
         })
+        sys.exit(1)
 
 
 api = ApiResource(cm_host, username="admin", password="admin")

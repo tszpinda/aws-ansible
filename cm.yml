@@ -7,15 +7,16 @@
     - epel_repo
     - cm_repo
 
+- hosts: tag_Name_node
+  gather_facts: True
+  become: yes
+  roles:
+    - node
+
 - hosts: tag_Name_cm
   gather_facts: True
   become: yes
   roles:
     - cm
 
-- hosts: tag_Name_node
-  gather_facts: True
-  become: yes
-  roles:
-    - node
 
