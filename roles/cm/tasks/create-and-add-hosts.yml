@@ -7,4 +7,17 @@
   register: hosts_results
   until: hosts_results.status == 200
 
-- debug: var=hosts_results
+- set_fact:
+    hostRefs: ["{{hosts_results.json['items'][0]['hostId']}}"]
+
+- name: add hosts to cluster
+  uri:
+    url:  "{{cm_api}}/clusters/{{cm_cluster_name}}/hosts"
+    method: POST
+    body: "{{ lookup('template','cluster-hosts.j2') }}"
+    user: admin
+    password: admin
+    return_content: yes
+    force_basic_auth: yes
+    status_code: 200
+    body_format: json

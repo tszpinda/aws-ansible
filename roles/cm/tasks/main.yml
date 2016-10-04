@@ -44,14 +44,10 @@
     body_format: json
   tags: init,cm_conifg
 
-- include: create-and-add-hosts.yml
-  tags: add-hosts
 
 - name: install cm-api
   pip: name=cm-api
   tags: init,cm_api
-
-
 
 - name: create cluster
   uri:
@@ -66,11 +62,17 @@
     body_format: json
   tags: init,cm_cluster
 
+- include: create-and-add-hosts.yml
+  tags: init,add-hosts
+
 - name: parcel setup
   cmparcel:
     host: localhost
     clusterName: "{{cm_cluster_name}}"
     clusterVersion: "{{cm_cluster_version}}"
     parcelVersion: "{{cm_parcel_version}}"
-  tags: cm_parcel
+  tags: init,cm_parcel
+
+- include: zookeeper-service.yml
+  tags: zookeeper-service
 

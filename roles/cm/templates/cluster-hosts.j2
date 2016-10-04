@@ -1,6 +1,6 @@
 { "items" : [
-    {% for host in groups['tag_Name_node'] %}
-        {{ hostvars[host]['ansible_eth0']['ipv4']['address'] }}
+    {% for hostRef in hostRefs %}
+       { "hostId": "{{ hostRef }}"}
     {% endfor %}
   ]
 }
