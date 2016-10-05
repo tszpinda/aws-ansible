@@ -1,5 +1,7 @@
 { "items": [
     {
+      "name": "zookeeper-SERVER",
+      "type": "SERVER",
       "config": {
         "items": [
           {
@@ -9,12 +11,10 @@
         ]
       },
       "hostRef": {
-        "hostId": "{{cloudera_node1_hostname}}"
+        "hostId": "{{zookeeperHost1Id}}"
       },
-      "name": "zookeeper-SERVER",
       "roleConfigGroupRef": {
         "roleConfigGroupName": "zookeeper-SERVER-BASE"
-      },
-      "type": "SERVER"
+      }
     }
 ]}

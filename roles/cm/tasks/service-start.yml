@@ -1,0 +1,20 @@
+---
+- name: start {{service_name}} service
+  uri:
+    url:  "{{cm_api}}/clusters/{{cm_cluster_name}}/services/{{service_name}}/commands/start"
+    method: POST
+    user: admin
+    password: admin
+    status_code: 200
+    body_format: json
+
+- name: wait for {{service_name}} service to be up and running
+  uri:
+    url: "{{cm_api}}/clusters/{{cm_cluster_name}}/services/{{service_name}}"
+    user: admin
+    password: admin
+    status_code: 200
+  register: serivce_result
+  until: serivce_result.json['serviceState'] == 'STARTED'
+  retries: 300
+  delay: 10

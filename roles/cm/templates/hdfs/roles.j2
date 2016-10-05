@@ -1,0 +1,64 @@
+{
+  "items": [
+    {
+      "name": "DATANODE-1",
+      "type": "DATANODE",
+      "hostRef": {
+        "hostId": "{{hdfsHost1Id}}"
+      },
+      "roleConfigGroupRef": {
+        "roleConfigGroupName": "hdfs-DATANODE-BASE"
+      }
+    },
+    {
+      "name": "NFSGATEWAY-1",
+      "type": "NFSGATEWAY",
+      "hostRef": {
+        "hostId": "{{hdfsHost1Id}}"
+      },
+      "roleConfigGroupRef": {
+        "roleConfigGroupName": "hdfs-NFSGATEWAY-BASE"
+      }
+    },
+    {
+      "name": "SECONDARYNAMENODE-1",
+      "type": "SECONDARYNAMENODE",
+      "hostRef": {
+        "hostId": "{{hdfsHost1Id}}"
+      },
+      "roleConfigGroupRef": {
+        "roleConfigGroupName": "hdfs-SECONDARYNAMENODE-BASE"
+      }
+    },
+    {
+      "name": "HTTPFS-1",
+      "type": "HTTPFS",
+      "hostRef": {
+        "hostId": "{{hdfsHost1Id}}"
+      },
+      "roleConfigGroupRef": {
+        "roleConfigGroupName": "hdfs-HTTPFS-BASE"
+      }
+    },
+    {
+      "name": "NAMENODE-1",
+      "type": "NAMENODE",
+      "hostRef": {
+        "hostId": "{{hdfsHost1Id}}"
+      },
+      "roleConfigGroupRef": {
+        "roleConfigGroupName": "hdfs-NAMENODE-BASE"
+      }
+    },
+    {
+      "name": "BALANCER-1",
+      "type": "BALANCER",
+      "hostRef": {
+        "hostId": "{{hdfsHost1Id}}"
+      },
+      "roleConfigGroupRef": {
+        "roleConfigGroupName": "hdfs-BALANCER-BASE"
+      }
+    }
+  ]
+}

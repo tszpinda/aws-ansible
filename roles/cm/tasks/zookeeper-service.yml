@@ -1,16 +1,14 @@
 ---
-- name: create zookeeper service
-  uri:
-    url:  "{{cm_api}}/clusters/{{cm_cluster_name}}/services"
-    method: POST
-    user: admin
-    password: admin
-    return_content: yes
-    body: "{{ lookup('template','zookeeper.j2') }}"
-    force_basic_auth: yes
-    status_code: 200
-    body_format: json
+- set_fact:
+    zookeeperHost1Id: "588a636b-2d27-4589-a1f9-3ea9dbf292a8"
 
-#- name: create zookeeper service roles
+- name: zookeeper service setup
+  include: service-setup.yml
+  vars:
+    service_name: zookeeper
+    role_groups: ["server"]
 
-#- name: create zookeeper service configuration
+- name: zookeeper service start
+  include: service-start.yml
+  vars:
+      service_name: zookeeper

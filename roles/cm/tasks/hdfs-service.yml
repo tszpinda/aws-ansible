@@ -1,0 +1,32 @@
+---
+- set_fact:
+    hdfsHost1Id: "588a636b-2d27-4589-a1f9-3ea9dbf292a8"
+
+- name: hdfs service
+  include: service-setup.yml
+  vars:
+    service_name: hdfs
+    role_groups: ["balancer","datanode","failovercontroller","gateway","namenode","nfsgateway","secondarynamenode"]
+
+- name: hdfs role datanode start
+  include: service-role-start.yml
+  vars:
+      service_name: hdfs
+      role_name: datanode
+      host_id: "{{hdfsHost1Id}}"
+
+- name: format hdfs
+  uri:
+    url:  "{{cm_api}}/clusters/{{cm_cluster_name}}/services/{{service_name}}/roleCommands/hdfsFormat"
+    method: POST
+    user: admin
+    password: admin
+    status_code: 200
+    body_format: json
+    body: '{ "items" : [ "hdfs-NAMENODE-BASE" ] }'
+
+
+- name: hdfs service start
+  include: service-start.yml
+  vars:
+      service_name: hdfs

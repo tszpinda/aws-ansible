@@ -1,0 +1,54 @@
+---
+- name: check current config for {{service_name}} service
+  uri:
+    url:  "{{cm_api}}/clusters/{{cm_cluster_name}}/services/{{service_name}}"
+    user: admin
+    password: admin
+    return_content: yes
+    status_code: 200,404
+  register: current_config
+
+- name: create {{service_name}} service
+  uri:
+    url:  "{{cm_api}}/clusters/{{cm_cluster_name}}/services"
+    method: POST
+    user: admin
+    password: admin
+    return_content: yes
+    body: "{{ lookup('template','{{service_name}}/create-service.j2') }}"
+    status_code: 200
+    body_format: json
+  when: current_config.status == 404
+
+- name: config update for {{service_name}} service
+  uri:
+    url:  "{{cm_api}}/clusters/{{cm_cluster_name}}/services/{{service_name}}/config"
+    method: PUT
+    user: admin
+    password: admin
+    return_content: yes
+    body: "{{ lookup('template','{{service_name}}/service-config.j2') }}"
+    status_code: 200
+    body_format: json
+
+- name: role config group update for {{service_name}} service
+  uri:
+    url:  "{{cm_api}}/clusters/{{cm_cluster_name}}/services/{{service_name}}/roleConfigGroups/{{service_name}}-{{item|upper}}-BASE/config"
+    method: PUT
+    user: admin
+    password: admin
+    return_content: yes
+    body: "{{ lookup('template','{{service_name}}/role-config-groups/{{item}}.j2') }}"
+    status_code: 200
+    body_format: json
+  with_items: "{{role_groups}}"
+
+- name: assign hosts to roles
+  uri:
+    url:  "{{cm_api}}/clusters/{{cm_cluster_name}}/services/{{service_name}}/roles"
+    method: POST
+    user: admin
+    password: admin
+    body: "{{ lookup('template','{{service_name}}/roles.j2') }}"
+    status_code: 200,400
+    body_format: json

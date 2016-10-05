@@ -1,0 +1,21 @@
+---
+- name: start role {{role_name}} in {{service_name}} service
+  uri:
+    url:  "{{cm_api}}/clusters/{{cm_cluster_name}}/services/{{service_name}}/roleCommands/start"
+    method: POST
+    user: admin
+    password: admin
+    status_code: 200
+    body_format: json
+    body: '{ "items" : [ "{{role_name}}" ] }'
+
+- name: wait for {{service_name}} service to be up and running
+  uri:
+    url: "{{cm_api}}/clusters/{{cm_cluster_name}}/services/{{service_name}}/roles/{{role_name}}-{{host_id}}"
+    user: admin
+    password: admin
+    status_code: 200
+  register: role_result
+  until: role_result.json['roleState'] == 'STARTED'
+  retries: 300
+  delay: 10

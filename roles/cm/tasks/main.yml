@@ -76,3 +76,5 @@
 - include: zookeeper-service.yml
   tags: zookeeper-service
 
+- include: hdfs-service.yml
+  tags: hdfs-service
